@@ -2,9 +2,10 @@ env
 .env
 __pycache__
 
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
+frontend
 
 # testing
 /coverage
