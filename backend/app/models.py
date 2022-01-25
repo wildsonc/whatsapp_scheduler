@@ -5,7 +5,7 @@ from django.db.models.deletion import CASCADE
 import cryptocode
 
 
-class EncryptedField(models.BinaryField):
+class EncryptedField(models.CharField):
     description = "Encrypted value"
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class EncryptedField(models.BinaryField):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
-        return cryptocode.decrypt(value, settings.SECRET_KEY)
+        return cryptocode.decrypt(str(value.tobytes()), settings.SECRET_KEY)
 
     def to_python(self, value):
         if isinstance(value, Setting):

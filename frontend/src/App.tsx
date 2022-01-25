@@ -1,10 +1,14 @@
-import React from 'react';
+import { useState } from 'react'
+import GlobalStyles from './styles/GlobalStyles'
 
 function App() {
+  const [count, setCount] = useState(0)
+
   return (
-    <div className="App">
-    </div>
-  );
+    <>
+    <GlobalStyles/>
+    </>
+  )
 }
 
-export default App;
+export default App

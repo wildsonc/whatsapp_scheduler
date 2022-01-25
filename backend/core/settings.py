@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'django_celery_results',
+    'integrations',
     'app',
 ]
 
@@ -139,4 +140,3 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = f'amqp://{AMQP_USER}:{AMQP_PASS}@{AMQP_HOST}:{AMQP_PORT}/{AMQP_VHOST}'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-
