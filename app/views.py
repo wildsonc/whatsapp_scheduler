@@ -1,11 +1,16 @@
+from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
-from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail
-from psycopg2.extras import RealDictCursor
 from rest_framework.parsers import JSONParser
+from psycopg2.extras import RealDictCursor
+
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from celery import shared_task, current_app
 
 from .models import Database, Query
+
+import time
 
 
 @api_view(['POST', 'GET'])
@@ -90,3 +95,27 @@ def query_detail(request, pk):
     elif request.method == 'DELETE':
         query.delete()
         return HttpResponse(status=204)
+
+
+@shared_task()
+def default(query, database):
+    lazy.delay()
+
+
+def celery_tasks():
+    tasks = list(sorted(name for name in current_app.tasks
+                        if not name.startswith('celery.')))
+    return tasks
+
+
+@shared_task()
+def lazy():
+    print("Sleeping")
+    time.sleep(20)
+
+
+@api_view(['GET'])
+@csrf_exempt
+def trigger(request):
+    lazy.delay()
+    return HttpResponse()
