@@ -1,4 +1,4 @@
-from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail
+from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail, DatabaseSerializerList
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
@@ -11,6 +11,7 @@ from celery import shared_task, current_app
 from .models import Database, Query
 
 import time
+import psycopg2
 
 
 @api_view(['POST', 'GET'])
@@ -22,11 +23,17 @@ def database(request):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
+        try:
+            print(serializer.data)
+            Database.objects.get(name=serializer.data['name'])
+            return JsonResponse({"status": "Error", "message": "This database name already exist!"})
+        except Database.DoesNotExist:
+            pass
         return JsonResponse(serializer.errors, status=400)
 
     elif request.method == 'GET':
         database = Database.objects.all()
-        serializer = DatabaseSerializer(database, many=True)
+        serializer = DatabaseSerializerList(database, many=True)
         return JsonResponse(serializer.data, safe=False)
 
 
@@ -47,7 +54,7 @@ def database_detail(request, pk):
         return JsonResponse(serializer.errors, status=400)
 
     if request.method == 'GET':
-        serializer = DatabaseSerializer(database)
+        serializer = DatabaseSerializerList(database)
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'DELETE':
@@ -119,3 +126,19 @@ def lazy():
 def trigger(request):
     lazy.delay()
     return HttpResponse()
+
+
+@api_view(['POST'])
+@csrf_exempt
+def database_test(request):
+    data = request.data
+    DB = f"dbname={data['database']} \
+        user={data['user']} \
+        password={data['password']} \
+        host={data['host']} \
+        port={data['port']}"
+    try:
+        psycopg2.connect(DB)
+        return JsonResponse({"status": "OK"})
+    except psycopg2.OperationalError as e:
+        return JsonResponse({"status": "Error", "message": str(e)})

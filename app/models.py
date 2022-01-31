@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 from django.conf import settings
 from django.db.models.deletion import CASCADE
@@ -27,7 +28,11 @@ class EncryptedField(models.CharField):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
-        return cryptocode.decrypt(str(value.tobytes()), settings.SECRET_KEY)
+        try:
+            value = str(value.tobytes())
+        except:
+            pass
+        return cryptocode.decrypt(value, settings.SECRET_KEY)
 
     def to_python(self, value):
         if isinstance(value, Setting):
@@ -51,7 +56,7 @@ class Setting(models.Model):
 
 
 class Database(models.Model):
-    name = models.CharField(max_length=60)
+    name = models.CharField(max_length=60, unique=True)
     host = models.CharField(max_length=254)
     database = models.CharField(max_length=254)
     user = models.CharField(max_length=254)

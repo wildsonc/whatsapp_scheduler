@@ -21,6 +21,12 @@ class DatabaseSerializer(serializers.ModelSerializer):
         return instance
 
 
+class DatabaseSerializerList(serializers.ModelSerializer):
+    class Meta:
+        model = Database
+        exclude = ['password']
+
+
 class QuerySerializer(serializers.ModelSerializer):
     database = DatabaseSerializer()
 

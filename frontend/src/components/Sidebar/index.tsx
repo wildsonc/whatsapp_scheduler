@@ -1,0 +1,55 @@
+import React from "react";
+import { useLocation } from "react-router-dom";
+import {
+  Container,
+  LinkWrapper,
+  LinkLabel,
+  SLink,
+  DatabaseIcon,
+  TaskIcon,
+  QueryIcon,
+  DashboardIcon,
+} from "./styles";
+
+export interface Props {}
+
+const Sidebar: React.FC<Props> = ({}) => {
+  const { pathname } = useLocation();
+  return (
+    <Container>
+      {linksArray.map(({ icon, label, to }) => (
+        <LinkWrapper key={label} className={pathname === to ? "active" : ""}>
+          <SLink to={to}>
+            {icon}
+            <LinkLabel>{label}</LinkLabel>
+          </SLink>
+        </LinkWrapper>
+      ))}
+    </Container>
+  );
+};
+
+const linksArray = [
+  {
+    label: "Dashboard",
+    icon: <DashboardIcon />,
+    to: "/",
+  },
+  {
+    label: "Tasks",
+    icon: <TaskIcon />,
+    to: "/tasks",
+  },
+  {
+    label: "Queries",
+    icon: <QueryIcon />,
+    to: "/queries",
+  },
+  {
+    label: "Databases",
+    icon: <DatabaseIcon />,
+    to: "/databases",
+  },
+];
+
+export default Sidebar;
