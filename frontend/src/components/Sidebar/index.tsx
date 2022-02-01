@@ -9,6 +9,7 @@ import {
   TaskIcon,
   QueryIcon,
   DashboardIcon,
+  CompanyIcon,
 } from "./styles";
 
 export interface Props {}
@@ -49,6 +50,11 @@ const linksArray = [
     label: "Databases",
     icon: <DatabaseIcon />,
     to: "/databases",
+  },
+  {
+    label: "Company",
+    icon: <CompanyIcon />,
+    to: "/company",
   },
 ];
 

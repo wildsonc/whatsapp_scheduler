@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { HiOutlineDatabase, HiOutlineClock } from "react-icons/hi";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { VscDashboard } from "react-icons/vsc";
+import { FaRegBuilding } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 export const Container = styled.div`
@@ -60,6 +61,12 @@ export const QueryIcon = styled(AiOutlineConsoleSql)`
   margin: 0 5px;
 `;
 export const DashboardIcon = styled(VscDashboard)`
+  width: 24px;
+  height: 24px;
+  background: inherit;
+  margin: 0 5px;
+`;
+export const CompanyIcon = styled(FaRegBuilding)`
   width: 24px;
   height: 24px;
   background: inherit;
