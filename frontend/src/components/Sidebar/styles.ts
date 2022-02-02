@@ -12,13 +12,16 @@ export const Container = styled.div`
   height: 100vh;
   position: relative;
   border-right: solid 1px var(--secondary);
+  background: var(--bg);
 `;
 
 export const LinkWrapper = styled.div`
   display: flex;
   padding: 10px 0;
+  color: var(--text);
   &.active {
     background: var(--tertiary);
+    color: var(--white);
     border-left: solid 2px var(--company);
   }
   :hover {
@@ -33,42 +36,36 @@ export const SLink = styled(Link)`
   width: 100%;
   text-decoration: none;
   font-size: 12px;
-  background: inherit;
+  color: inherit;
 `;
 
 export const LinkLabel = styled.span`
   display: block;
   flex: 1;
-  background: inherit;
 `;
 
 export const DatabaseIcon = styled(HiOutlineDatabase)`
   width: 24px;
   height: 24px;
-  background: inherit;
   margin: 0 5px;
 `;
 export const TaskIcon = styled(HiOutlineClock)`
   width: 24px;
   height: 24px;
-  background: inherit;
   margin: 0 5px;
 `;
 export const QueryIcon = styled(AiOutlineConsoleSql)`
   width: 24px;
   height: 24px;
-  background: inherit;
   margin: 0 5px;
 `;
 export const DashboardIcon = styled(VscDashboard)`
   width: 24px;
   height: 24px;
-  background: inherit;
   margin: 0 5px;
 `;
 export const CompanyIcon = styled(FaRegBuilding)`
   width: 24px;
   height: 24px;
-  background: inherit;
   margin: 0 5px;
 `;

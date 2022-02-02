@@ -86,27 +86,29 @@ def get_template(request, company, name):
 
 
 def parser_template(template):
-    result = {'has_footer': False,
-              'has_header': False,
-              'has_buttons': False}
+    result = {}
     for component in template['components']:
         if component['type'] == 'BODY':
-            result['body'] = component['text']
+            result['body'] = {}
+            result['body']['text'] = component['text']
             try:
-                result['body_args'] = len(component['example']['body_text'])
+                result['body']['args'] = len(component['example']['body_text'])
             except:
                 result['body_args'] = 0
         elif component['type'] == 'FOOTER':
             result['footer'] = component
-            result['has_footer'] = True
         elif component['type'] == 'HEADER':
             result['header'] = component
-            result['has_header'] = True
+            try:
+                result['header']['args'] = len(
+                    component['example']['header_handle'])
+            except:
+                result['header']['args'] = False
         elif component['type'] == 'BUTTONS':
-            result['has_buttons'] = True
             buttons = []
             for button in component['buttons']:
                 data = {"type": button['type'],
+                        "text": button['text'],
                         'variable': False}
                 if 'example' in button:
                     data['variable'] = True

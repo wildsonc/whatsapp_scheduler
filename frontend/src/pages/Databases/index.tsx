@@ -17,15 +17,9 @@ import {
     DeleteIcon,
 } from '../../components/Table/styles';
 import Modal from '../../components/Modal';
-import {
-    useForm,
-    SubmitHandler,
-    UseFormRegister,
-    UseFormRegisterReturn,
-} from 'react-hook-form';
+import { useForm, SubmitHandler, UseFormRegister } from 'react-hook-form';
 import { useFetch } from '../../hooks/useFetch';
 import api from '../../services/api';
-import { DatabaseIcon } from '../../components/Sidebar/styles';
 
 interface Database {
     host: string;
@@ -60,16 +54,17 @@ const Databases: React.FC = () => {
 
     // Add
     const toggle = () => setIsShow(!isShow);
-    const onSubmit: SubmitHandler<Database> = (data) => {
-        api.post(`database-test`, data).then((response) => {
+    const onSubmit: SubmitHandler<Database> = (r) => {
+        api.post(`database-test`, r).then((response) => {
             if (response.data.status == 'Error') {
                 setMessage(response.data.message);
             }
             if (response.data.status == 'OK') {
-                api.post(`database`, data).then((response) => {
+                api.post(`database`, r).then((response) => {
                     if (response.data.status == 'Error') {
                         setMessage(response.data.message);
                     } else {
+                        mutate(data);
                         toggle();
                     }
                 });
@@ -78,13 +73,14 @@ const Databases: React.FC = () => {
     };
     // Edit
     const toggleEdit = () => setShowEdit(!showEdit);
-    const onEdit: SubmitHandler<Database> = (data) => {
-        api.post(`database-test`, data).then((response) => {
+    const onEdit: SubmitHandler<Database> = (r) => {
+        api.post(`database-test`, r).then((response) => {
             if (response.data.status == 'Error') {
                 setMessage(response.data.message);
             }
             if (response.data.status == 'OK') {
-                api.put(`database/${data.id}`, data).then((response) => {
+                api.put(`database/${r.id}`, r).then((response) => {
+                    mutate(data);
                     toggleEdit();
                 });
             }
@@ -99,8 +95,9 @@ const Databases: React.FC = () => {
     };
     // Delete
     const toggleDelete = () => setShowDelete(!showDelete);
-    const onDelete: SubmitHandler<Edit> = (data) => {
-        api.delete(`database/${data.id}`).then((response) => {
+    const onDelete: SubmitHandler<Edit> = (r) => {
+        api.delete(`database/${r.id}`).then((response) => {
+            mutate(data);
             toggleDelete();
         });
     };

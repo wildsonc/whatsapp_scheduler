@@ -39,12 +39,68 @@ export const Button = styled.button<BtnProps>`
 export const Text = styled.textarea`
   background: var(--secondary);
   border-radius: 5px;
-  max-width: 600px;
+  width: 40vw;
+  color: var(--white);
   height: calc(100vh - 100px);
   padding: 5px;
-  margin-top: 10px;
   resize: none;
   :focus {
     border: 1px solid var(--company);
   }
+`;
+
+export const TitleInput = styled.input`
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 5px;
+  color: var(--white);
+  background: var(--primary);
+  :focus,
+  :hover {
+    border: 2px solid var(--text);
+  }
+`;
+
+export const Form = styled.form``;
+
+export const Select = styled.select`
+  min-width: 100px;
+  color: var(--white);
+  background: var(--secondary);
+  border-radius: 3px;
+  padding: 10px;
+  &.discret {
+    padding: 0;
+    background: var(--primary);
+  }
+`;
+
+export const Label = styled.div`
+  font-weight: bold;
+  padding: 5px;
+`;
+
+export const Input = styled.input`
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  color: var(--white);
+  width: 100%;
+  border: 2px solid var(--secondary);
+  margin-bottom: 10px;
+  :focus {
+    border: 2px solid var(--tertiary);
+  }
+  :hover {
+    border: 2px solid var(--tertiary);
+  }
+`;
+
+export const Columns = styled.div`
+  display: flex;
+  margin-top: 10px;
+`;
+
+export const Column = styled.div`
+  padding: 0 10px;
 `;

@@ -18,6 +18,10 @@ export const TableTD = styled.td`
   text-align: center;
   padding: 5px 0;
   border-bottom: 1px solid var(--secondary);
+  background: var(--primary);
+  > button {
+    background: var(--primary);
+  }
 `;
 
 export const EditIcon = styled(FaRegEdit)`

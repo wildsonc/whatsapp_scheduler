@@ -5,6 +5,7 @@ import Databases from './pages/Databases';
 import Queries from './pages/Queries';
 import Tasks from './pages/Tasks';
 import Query from './pages/Query';
+import Company from './pages/Company';
 
 const Routes = () => {
     return (
@@ -26,6 +27,9 @@ const Routes = () => {
             </Route>
             <Route exact path="/databases">
                 <Databases />
+            </Route>
+            <Route exact path="/company">
+                <Company />
             </Route>
         </Switch>
     );
