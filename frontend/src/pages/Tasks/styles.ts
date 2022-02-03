@@ -17,6 +17,13 @@ export const Header = styled.div`
   }
 `;
 
+export const Buttons = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: var(--secondary);
+`;
+
 interface BtnProps {
   bgcolor?: string;
   color?: string;
@@ -34,4 +41,14 @@ export const Button = styled.button<BtnProps>`
   :hover {
     opacity: 0.7;
   }
+`;
+
+export const Select = styled.select`
+  min-width: 100px;
+  width: 100%;
+  color: var(--white);
+  background: var(--tertiary);
+  border-radius: 3px;
+  padding: 10px;
+  margin-bottom: 10px;
 `;

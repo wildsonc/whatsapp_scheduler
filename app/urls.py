@@ -11,4 +11,7 @@ urlpatterns = [
     path('trigger', views.trigger, name='trigger'),
     path('run', views.run, name='run'),
     path('tasks', views.functions, name='tasks'),
+    path('periodic', views.periodic, name='periodic'),
+    path('periodic/<int:id>', views.periodic, name='periodic'),
+    path('periodic-state', views.periodic_state, name='periodic_state'),
 ]

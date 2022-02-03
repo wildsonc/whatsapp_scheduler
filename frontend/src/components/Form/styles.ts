@@ -39,6 +39,9 @@ export const Input = styled.input`
   :hover {
     border: 2px solid var(--text);
   }
+  &[type="checkbox"] {
+    margin-top: 15px;
+  }
 `;
 
 export const Message = styled.p`

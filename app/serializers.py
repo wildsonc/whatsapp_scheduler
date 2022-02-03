@@ -1,5 +1,24 @@
+from django_celery_beat.models import CrontabSchedule, PeriodicTask
 from rest_framework import serializers
 from .models import Database, Query
+
+
+class CrontabSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    minute = serializers.CharField(max_length=240)
+    hour = serializers.CharField(max_length=96)
+    day_of_week = serializers.CharField(max_length=64)
+    day_of_month = serializers.CharField(max_length=124)
+    month_of_year = serializers.CharField(max_length=64)
+    timezone = serializers.CharField(max_length=63)
+
+
+class PeriodicSerializer(serializers.ModelSerializer):
+    crontab = CrontabSerializer()
+
+    class Meta:
+        model = PeriodicTask
+        fields = '__all__'
 
 
 class DatabaseSerializer(serializers.ModelSerializer):

@@ -148,9 +148,6 @@ export const Args = styled.p<ArgsProps>`
     margin-right: 5px;
     background: ${(props) => (props.active ? "green" : "red")};
   }
-  ::after {
-    content: ${(props) => (props.active ? ":" : "")};
-  }
   span {
     font-weight: bold;
   }

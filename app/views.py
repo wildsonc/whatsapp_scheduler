@@ -1,4 +1,4 @@
-from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail, DatabaseSerializerList
+from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail, DatabaseSerializerList, PeriodicSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
@@ -12,7 +12,6 @@ from .models import Database, Query
 from .tasks import *
 
 import psycopg2
-import PyPDF2
 
 
 @api_view(['POST', 'GET'])
@@ -36,6 +35,64 @@ def database(request):
         database = Database.objects.all()
         serializer = DatabaseSerializerList(database, many=True)
         return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['POST', 'GET', 'PUT', 'DELETE'])
+@csrf_exempt
+def periodic(request, id=None):
+    if request.method == 'POST':
+        d = request.data
+        c = d['crontab']
+        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
+                                                              hour=c['hour'],
+                                                              day_of_week=c['day_of_week'],
+                                                              day_of_month=c['day_of_month'],
+                                                              month_of_year=c['month_of_year'],
+                                                              timezone=c['timezone'])
+        kwargs = {"query": d['query']}
+        PeriodicTask.objects.create(crontab=cron,
+                                    name=d['name'],
+                                    task=d['task'],
+                                    start_time=d['start_time'] if d['start_time'] != '' else None,
+                                    one_off=d['one_off'],
+                                    kwargs=kwargs)
+        return HttpResponse()
+
+    elif request.method == 'GET':
+        tasks = PeriodicTask.objects.all()
+        serializer = PeriodicSerializer(tasks, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    elif request.method == 'PUT':
+        d = request.data
+        c = d['crontab']
+        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
+                                                              hour=c['hour'],
+                                                              day_of_week=c['day_of_week'],
+                                                              day_of_month=c['day_of_month'],
+                                                              month_of_year=c['month_of_year'],
+                                                              timezone=c['timezone'])
+        kwargs = {"query": d['query']}
+        PeriodicTask.objects.filter(id=id).update(crontab=cron,
+                                                  name=d['name'],
+                                                  task=d['task'],
+                                                  start_time=d['start_time'] if d['start_time'] != '' else None,
+                                                  one_off=d['one_off'],
+                                                  kwargs=kwargs)
+        return HttpResponse()
+
+    elif request.method == 'DELETE':
+        PeriodicTask.objects.filter(id=id).delete()
+        return HttpResponse()
+
+
+@api_view(['PUT'])
+@csrf_exempt
+def periodic_state(request):
+    active = request.data['active']
+    id = request.data['id']
+    PeriodicTask.objects.filter(pk=id).update(enabled=active)
+    return HttpResponse()
 
 
 @api_view(['DELETE', 'PUT', 'GET'])
