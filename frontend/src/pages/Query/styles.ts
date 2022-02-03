@@ -179,12 +179,14 @@ export const Wrapper = styled.div`
 `;
 export const Message = styled.p`
   color: red;
+  max-width: 300px;
   text-align: center;
   border-radius: 5px;
   padding: 15px;
   margin: 20px 0 0 10px;
   background: #ffcfcf;
   font-weight: bold;
+  font-size: 14px;
 `;
 
 const rotate = keyframes`
@@ -201,4 +203,9 @@ export const LoadIcon = styled(BiLoaderCircle)`
   width: 24px;
   height: 24px;
   animation: ${rotate} 2s linear infinite;
+`;
+export const VerifyMessage = styled.span`
+  padding-left: 15px;
+  font-size: 14px;
+  color: var(--text);
 `;

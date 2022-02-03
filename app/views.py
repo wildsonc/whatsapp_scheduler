@@ -6,13 +6,13 @@ from rest_framework.parsers import JSONParser
 from psycopg2.extras import RealDictCursor
 
 from django_celery_beat.models import CrontabSchedule, PeriodicTask
-from celery import shared_task, current_app
+from celery import current_app
 
 from .models import Database, Query
+from .tasks import *
 
 import psycopg2
 import PyPDF2
-import os
 
 
 @api_view(['POST', 'GET'])
@@ -111,7 +111,9 @@ def query_detail(request, pk):
 @csrf_exempt
 def run(request):
     data = request.data
-    return JsonResponse(execute(data['query'], data['database'], True), safe=False)
+    r = execute(data['query'], data['database'], True)
+    print(r)
+    return JsonResponse(r, safe=False)
 
 
 def execute(query: str, db, test=False, many=True):
@@ -135,7 +137,7 @@ def execute(query: str, db, test=False, many=True):
 def functions(request):
     tasks = list(sorted(name for name in current_app.tasks
                         if not name.startswith('celery.')))
-    return JsonResponse({"functions": tasks})
+    return JsonResponse({"data": tasks})
 
 
 @api_view(['GET'])
@@ -158,19 +160,3 @@ def database_test(request):
         return JsonResponse({"status": "OK"})
     except psycopg2.OperationalError as e:
         return JsonResponse({"status": "Error", "message": str(e)})
-
-
-@shared_task
-def encrypt_pdf(path, password) -> str:
-    pdfFile = open(path, 'rb')
-    pdfReader = PyPDF2.PdfFileReader(pdfFile)
-    pdfWriter = PyPDF2.PdfFileWriter()
-    for pageNum in range(pdfReader.numPages):
-        pdfWriter.addPage(pdfReader.getPage(pageNum))
-    pdfWriter.encrypt(password)
-    newPath = path.replace('-pass.', '.')
-    resultPdf = open(newPath, 'wb')
-    pdfWriter.write(resultPdf)
-    resultPdf.close()
-    os.remove(path)
-    return newPath.split('/')[-1]

@@ -82,7 +82,7 @@ class Query(models.Model):
     name = models.CharField(max_length=60)
     description = models.CharField(max_length=254, null=True, blank=True)
     hsm = models.CharField(max_length=254, null=True, blank=True)
-    function = models.CharField(max_length=254, null=True, blank=True)
+    task = models.CharField(max_length=254, null=True, blank=True)
     sql = models.TextField()
     database = models.ForeignKey(Database, on_delete=CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -10,5 +10,5 @@ urlpatterns = [
     path('query/<int:pk>', views.query_detail, name='query_detail'),
     path('trigger', views.trigger, name='trigger'),
     path('run', views.run, name='run'),
-    path('functions', views.functions, name='functions'),
+    path('tasks', views.functions, name='tasks'),
 ]

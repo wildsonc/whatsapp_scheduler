@@ -32,20 +32,21 @@ class QuerySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Query
-        fields = ['id', 'database', 'name', 'description', 'sql', 'hsm', 'function']
+        fields = '__all__'
 
 
 class QuerySerializerDetail(serializers.ModelSerializer):
     class Meta:
         model = Query
-        fields = ['database', 'name', 'description', 'sql', 'hsm', 'function']
+        fields = ['database', 'name', 'description', 'sql', 'hsm', 'task']
 
     def create(self, validated_data):
         return Query.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
+        instance.description = validated_data.get(
+            'description', instance.description)
         instance.sql = validated_data.get('sql', instance.sql)
         instance.database = validated_data.get('database', instance.database)
         instance.save()

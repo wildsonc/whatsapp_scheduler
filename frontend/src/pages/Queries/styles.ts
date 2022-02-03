@@ -35,3 +35,10 @@ export const Button = styled.button<BtnProps>`
     opacity: 0.7;
   }
 `;
+
+export const Buttons = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: var(--secondary);
+`;

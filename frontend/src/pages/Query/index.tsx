@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useForm, SubmitHandler, UseFormRegister } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { Link, useParams, useHistory } from "react-router-dom";
+import { useForm, SubmitHandler } from "react-hook-form";
 
 import {
   Container,
@@ -19,6 +19,7 @@ import {
   Wrapper,
   Message,
   LoadIcon,
+  VerifyMessage,
 } from "./styles";
 
 import Card from "../../components/Card";
@@ -31,6 +32,7 @@ interface SQL {
   description: string;
   sql: string;
   hsm: string;
+  task?: string;
 }
 
 interface Database {
@@ -54,18 +56,44 @@ interface Templates {
   templates: Array<string>;
 }
 
+interface Tasks {
+  data: [];
+}
+
+type Params = {
+  id: any;
+};
+
 const Query: React.FC = () => {
-  const { data: dataCompany, mutate: mutateCompany } =
-    useFetch<Company[]>(`dialog`);
+  const { data: dataCompany, mutate } = useFetch<Company[]>(`dialog`);
   const { data } = useFetch<Database[]>("database");
+  const { data: tasks } = useFetch<Tasks>("tasks");
   const [company, setCompany] = useState<String>("explorernet");
   const { data: hsm } = useFetch<Templates>(`/templates/${company}`);
-  const { register, handleSubmit, setValue, watch } = useForm<SQL>();
   const [template, setTemplate] = useState<JSX.Element>();
   const [templateArgs, setTemplateArgs] = useState<JSX.Element>();
   const [result, setResult] = useState<JSX.Element>();
   const [message, setMessage] = useState<string>("");
   const [isRunning, setRunning] = useState<boolean>(false);
+  const [isDisabled, setDisabled] = useState<boolean>(true);
+  const [hasArgs, setArgs] = useState<boolean>(false);
+  const [needTask, setTask] = useState<boolean>(false);
+
+  const { register, handleSubmit, setValue, watch } = useForm<SQL>();
+  const { id } = useParams<Params>();
+  const history = useHistory();
+
+  useEffect(() => {
+    if (id) {
+      api.get(`query/${id}`).then((response) => {
+        setValue("sql", response.data.sql);
+        setValue("name", response.data.name);
+        setValue("database", response.data.database.id);
+        setValue("hsm", response.data.hsm), { shouldValidate: true };
+        setValue("task", response.data.task);
+      });
+    }
+  }, [hsm, data]);
 
   if (!data) {
     return <>Loading...</>;
@@ -76,8 +104,17 @@ const Query: React.FC = () => {
   if (!dataCompany) {
     return <>Loading...</>;
   }
+  if (!tasks) {
+    return <>Loading...</>;
+  }
+
   const onSubmit: SubmitHandler<SQL> = (r) => {
-    api.post(`query`, r).then((response) => {});
+    r.task = needTask ? r.task : undefined;
+    if (id) {
+      api.put(`query/${id}`, r).then(() => history.push("/queries"));
+    } else {
+      api.post(`query`, r).then(() => history.push("/queries"));
+    }
   };
 
   const run = () => {
@@ -86,17 +123,30 @@ const Query: React.FC = () => {
     if (!query) {
       return setMessage("Query cannot be empty!");
     }
-    if (!database) {
-      return setMessage("Select an database");
+    if (watch("hsm") == "select") {
+      return setMessage("Select a HSM");
     }
     setMessage("");
     setRunning(true);
+    setDisabled(true);
     api.post("run", { query, database }).then((result) => {
       setRunning(false);
       if (result.data.status !== "Erro") {
+        if (!result.data[0].hasOwnProperty("phone")) {
+          return setMessage('A "phone" column is required!');
+        }
+        if (!result.data[0].hasOwnProperty("company")) {
+          return setMessage('A "company" column is required!');
+        }
+        if (!result.data[0].hasOwnProperty("body_args") && hasArgs) {
+          return setMessage('An "body_args" column is required!');
+        }
+        setDisabled(false);
         let head = [];
+        let i = 1;
         for (let key in result.data[0]) {
-          head.push(<th key={Math.random()}>{key}</th>);
+          head.push(<th key={i}>{key}</th>);
+          i++;
         }
         let body = [];
         for (let value of result.data) {
@@ -127,12 +177,17 @@ const Query: React.FC = () => {
   const selectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setCompany(value);
-    mutateCompany(dataCompany);
+    mutate(dataCompany);
   };
 
   const selectHsm = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
+    setDisabled(true);
     api.get(`/templates/${company}/${value}`).then((response) => {
+      response.data.body.args ? setArgs(true) : setArgs(false);
+      response.data.header?.format === "DOCUMENT"
+        ? setTask(true)
+        : setTask(false);
       setTemplate(
         <Card
           body={response.data.body}
@@ -171,8 +226,22 @@ const Query: React.FC = () => {
           )}
         </>
       );
+      setDisabled(true);
     });
   };
+
+  const selectTasks = (
+    <Column style={{ paddingTop: 20 }}>
+      <Label>Task</Label>
+      <Select {...register("task")} style={{ width: "200px", height: 40 }}>
+        {tasks.data.map((f: any) => (
+          <option value={f} key={f}>
+            {f}
+          </option>
+        ))}
+      </Select>
+    </Column>
+  );
 
   return (
     <Container>
@@ -181,10 +250,14 @@ const Query: React.FC = () => {
           <div>
             <TitleInput
               placeholder="New query"
-              {...(register("name"), { required: true })}
+              {...register("name")}
               length={watch("name") ? watch("name").length : 12}
+              required
             />
-            <Button>Save</Button>
+            <Button disabled={isDisabled}>Save</Button>
+            <VerifyMessage>
+              {isDisabled ? "Run to verify and save" : ""}
+            </VerifyMessage>
           </div>
           <Link to="/queries">
             <Button>↩ Back</Button>
@@ -192,7 +265,7 @@ const Query: React.FC = () => {
         </Header>
         <Columns>
           <Column>
-            <Text {...register("sql")} />
+            <Text {...register("sql")} onChange={() => setDisabled(true)} />
           </Column>
           <Column>
             <Columns>
@@ -217,10 +290,7 @@ const Query: React.FC = () => {
                     ))}
                   </Select>
                 </Columns>
-                <Select
-                  {...(register("hsm"), { required: true })}
-                  onChange={selectHsm}
-                >
+                <Select {...register("hsm")} onChange={selectHsm}>
                   <option value="select" key="select">
                     Select...
                   </option>
@@ -233,7 +303,10 @@ const Query: React.FC = () => {
               </Column>
               <Column>{templateArgs}</Column>
             </Columns>
-            {template}
+            <Columns>
+              {template}
+              {needTask ? selectTasks : null}
+            </Columns>
             {result}
             <Columns>
               <Button
