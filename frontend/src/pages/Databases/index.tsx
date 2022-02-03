@@ -203,33 +203,37 @@ const Databases: React.FC = () => {
                 <span>Databases</span>
                 <Button onClick={toggle}>+ Database</Button>
             </Header>
-            <Table>
-                <thead>
-                    <TableTR>
-                        <TableTH>Name</TableTH>
-                        <TableTH>Host</TableTH>
-                        <TableTH>Database</TableTH>
-                        <TableTH>Actions</TableTH>
-                    </TableTR>
-                </thead>
-                <tbody>
-                    {data.map((db) => (
-                        <TableTR key={db.id}>
-                            <TableTD>{db.name}</TableTD>
-                            <TableTD>{db.host}</TableTD>
-                            <TableTD>{db.database}</TableTD>
-                            <TableTD>
-                                <button onClick={() => edit(db)}>
-                                    <EditIcon />
-                                </button>
-                                <button onClick={() => remove(db.name, db.id)}>
-                                    <DeleteIcon />
-                                </button>
-                            </TableTD>
+            <div style={{ overflow: 'auto' }}>
+                <Table>
+                    <thead>
+                        <TableTR>
+                            <TableTH>Name</TableTH>
+                            <TableTH>Host</TableTH>
+                            <TableTH>Database</TableTH>
+                            <TableTH>Actions</TableTH>
                         </TableTR>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {data.map((db) => (
+                            <TableTR key={db.id}>
+                                <TableTD>{db.name}</TableTD>
+                                <TableTD>{db.host}</TableTD>
+                                <TableTD>{db.database}</TableTD>
+                                <TableTD>
+                                    <button onClick={() => edit(db)}>
+                                        <EditIcon />
+                                    </button>
+                                    <button
+                                        onClick={() => remove(db.name, db.id)}
+                                    >
+                                        <DeleteIcon />
+                                    </button>
+                                </TableTD>
+                            </TableTR>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
             <Modal
                 isActive={isShow}
                 header="New connection"

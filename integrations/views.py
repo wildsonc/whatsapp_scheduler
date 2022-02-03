@@ -92,7 +92,7 @@ def parser_template(template):
             result['body'] = {}
             result['body']['text'] = component['text']
             try:
-                result['body']['args'] = len(component['example']['body_text'])
+                result['body']['args'] = len(result['body']['text'].split('{{')) - 1
             except:
                 result['body_args'] = 0
         elif component['type'] == 'FOOTER':
@@ -103,15 +103,15 @@ def parser_template(template):
                 result['header']['args'] = len(
                     component['example']['header_handle'])
             except:
-                result['header']['args'] = False
+                result['header']['args'] = 0
         elif component['type'] == 'BUTTONS':
             buttons = []
             for button in component['buttons']:
                 data = {"type": button['type'],
                         "text": button['text'],
-                        'variable': False}
+                        'variable': 0}
                 if 'example' in button:
-                    data['variable'] = True
+                    data['variable'] = 1
                 buttons.append(data)
             result['buttons'] = buttons
     return result

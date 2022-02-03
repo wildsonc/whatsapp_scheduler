@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 export default createGlobalStyle`
     * {
@@ -8,6 +8,7 @@ export default createGlobalStyle`
     }
     html, body, #root {
         height: 100%;
+        background: var(--primary);
     }
     *, button, input {
         border: 0;
@@ -22,5 +23,26 @@ export default createGlobalStyle`
         --text: #6b6b6b;
         --white: #fcfcfc;
         --company: #ff6c37;
+    }
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: var(--tertiary);
+        border-radius: 5px;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text);
     }
 `;

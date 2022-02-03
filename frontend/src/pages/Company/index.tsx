@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler, UseFormRegister } from 'react-hook-form';
 
 import { Container, Header, Button, Buttons } from './styles';
-import {
-    Form,
-    FormGroups,
-    FormGroup,
-    Label,
-    Input,
-    Message,
-} from '../../components/Form/styles';
+import { Form, FormGroup, Label, Input } from '../../components/Form/styles';
 import {
     Table,
     TableTR,
@@ -151,31 +144,35 @@ const Company: React.FC = () => {
                 <span>Company</span>
                 <Button onClick={toggle}>+ Company</Button>
             </Header>
-            <Table>
-                <thead>
-                    <TableTR>
-                        <TableTH>Company</TableTH>
-                        <TableTH>Phone Number</TableTH>
-                        <TableTH>Actions</TableTH>
-                    </TableTR>
-                </thead>
-                <tbody>
-                    {data.map((c) => (
-                        <TableTR key={c.id}>
-                            <TableTD>{c.company}</TableTD>
-                            <TableTD>{c.phone_number}</TableTD>
-                            <TableTD>
-                                <button onClick={() => edit(c)}>
-                                    <EditIcon />
-                                </button>
-                                <button onClick={() => remove(c.company, c.id)}>
-                                    <DeleteIcon />
-                                </button>
-                            </TableTD>
+            <div style={{ overflow: 'auto' }}>
+                <Table>
+                    <thead>
+                        <TableTR>
+                            <TableTH>Company</TableTH>
+                            <TableTH>Phone Number</TableTH>
+                            <TableTH>Actions</TableTH>
                         </TableTR>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {data.map((c) => (
+                            <TableTR key={c.id}>
+                                <TableTD>{c.company}</TableTD>
+                                <TableTD>{c.phone_number}</TableTD>
+                                <TableTD>
+                                    <button onClick={() => edit(c)}>
+                                        <EditIcon />
+                                    </button>
+                                    <button
+                                        onClick={() => remove(c.company, c.id)}
+                                    >
+                                        <DeleteIcon />
+                                    </button>
+                                </TableTD>
+                            </TableTR>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
             <Modal
                 isActive={isShow}
                 header="New company"

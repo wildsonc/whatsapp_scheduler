@@ -10,8 +10,9 @@ from celery import shared_task, current_app
 
 from .models import Database, Query
 
-import time
 import psycopg2
+import PyPDF2
+import os
 
 
 @api_view(['POST', 'GET'])
@@ -67,6 +68,7 @@ def database_detail(request, pk):
 def query(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
+        print(data)
         serializer = QuerySerializerDetail(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -75,7 +77,8 @@ def query(request):
 
     elif request.method == 'GET':
         query = Query.objects.all()
-        serializer = QuerySerializer(query, many=True, context={'request': request})
+        serializer = QuerySerializer(
+            query, many=True, context={'request': request})
         return JsonResponse(serializer.data, safe=False)
 
 
@@ -104,27 +107,40 @@ def query_detail(request, pk):
         return HttpResponse(status=204)
 
 
-@shared_task()
-def default(query, database):
-    lazy.delay()
+@api_view(['POST'])
+@csrf_exempt
+def run(request):
+    data = request.data
+    return JsonResponse(execute(data['query'], data['database'], True), safe=False)
 
 
-def celery_tasks():
+def execute(query: str, db, test=False, many=True):
+    _db = Database.objects.get(id=db)
+    with psycopg2.connect(_db.connection) as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            if test:
+                query += ' limit 10'
+            try:
+                cursor.execute(query)
+            except Exception as e:
+                return {"status": "Erro", "message": str(e)}
+            if many:
+                return cursor.fetchall()
+            else:
+                return cursor.fetchone()
+
+
+@api_view(['GET'])
+@csrf_exempt
+def functions(request):
     tasks = list(sorted(name for name in current_app.tasks
                         if not name.startswith('celery.')))
-    return tasks
-
-
-@shared_task()
-def lazy():
-    print("Sleeping")
-    time.sleep(20)
+    return JsonResponse({"functions": tasks})
 
 
 @api_view(['GET'])
 @csrf_exempt
 def trigger(request):
-    lazy.delay()
     return HttpResponse()
 
 
@@ -142,3 +158,19 @@ def database_test(request):
         return JsonResponse({"status": "OK"})
     except psycopg2.OperationalError as e:
         return JsonResponse({"status": "Error", "message": str(e)})
+
+
+@shared_task
+def encrypt_pdf(path, password) -> str:
+    pdfFile = open(path, 'rb')
+    pdfReader = PyPDF2.PdfFileReader(pdfFile)
+    pdfWriter = PyPDF2.PdfFileWriter()
+    for pageNum in range(pdfReader.numPages):
+        pdfWriter.addPage(pdfReader.getPage(pageNum))
+    pdfWriter.encrypt(password)
+    newPath = path.replace('-pass.', '.')
+    resultPdf = open(newPath, 'wb')
+    pdfWriter.write(resultPdf)
+    resultPdf.close()
+    os.remove(path)
+    return newPath.split('/')[-1]

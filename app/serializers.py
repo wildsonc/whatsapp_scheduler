@@ -32,13 +32,13 @@ class QuerySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Query
-        fields = ['id', 'database', 'name', 'description', 'sql']
+        fields = ['id', 'database', 'name', 'description', 'sql', 'hsm', 'function']
 
 
 class QuerySerializerDetail(serializers.ModelSerializer):
     class Meta:
         model = Query
-        fields = ['database', 'name', 'description', 'sql']
+        fields = ['database', 'name', 'description', 'sql', 'hsm', 'function']
 
     def create(self, validated_data):
         return Query.objects.create(**validated_data)
