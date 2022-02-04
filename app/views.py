@@ -12,6 +12,7 @@ from .models import Database, Query
 from .tasks import *
 
 import psycopg2
+import json
 
 
 @api_view(['POST', 'GET'])
@@ -37,64 +38,6 @@ def database(request):
         return JsonResponse(serializer.data, safe=False)
 
 
-@api_view(['POST', 'GET', 'PUT', 'DELETE'])
-@csrf_exempt
-def periodic(request, id=None):
-    if request.method == 'POST':
-        d = request.data
-        c = d['crontab']
-        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
-                                                              hour=c['hour'],
-                                                              day_of_week=c['day_of_week'],
-                                                              day_of_month=c['day_of_month'],
-                                                              month_of_year=c['month_of_year'],
-                                                              timezone=c['timezone'])
-        kwargs = {"query": d['query']}
-        PeriodicTask.objects.create(crontab=cron,
-                                    name=d['name'],
-                                    task=d['task'],
-                                    start_time=d['start_time'] if d['start_time'] != '' else None,
-                                    one_off=d['one_off'],
-                                    kwargs=kwargs)
-        return HttpResponse()
-
-    elif request.method == 'GET':
-        tasks = PeriodicTask.objects.all()
-        serializer = PeriodicSerializer(tasks, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-    elif request.method == 'PUT':
-        d = request.data
-        c = d['crontab']
-        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
-                                                              hour=c['hour'],
-                                                              day_of_week=c['day_of_week'],
-                                                              day_of_month=c['day_of_month'],
-                                                              month_of_year=c['month_of_year'],
-                                                              timezone=c['timezone'])
-        kwargs = {"query": d['query']}
-        PeriodicTask.objects.filter(id=id).update(crontab=cron,
-                                                  name=d['name'],
-                                                  task=d['task'],
-                                                  start_time=d['start_time'] if d['start_time'] != '' else None,
-                                                  one_off=d['one_off'],
-                                                  kwargs=kwargs)
-        return HttpResponse()
-
-    elif request.method == 'DELETE':
-        PeriodicTask.objects.filter(id=id).delete()
-        return HttpResponse()
-
-
-@api_view(['PUT'])
-@csrf_exempt
-def periodic_state(request):
-    active = request.data['active']
-    id = request.data['id']
-    PeriodicTask.objects.filter(pk=id).update(enabled=active)
-    return HttpResponse()
-
-
 @api_view(['DELETE', 'PUT', 'GET'])
 @csrf_exempt
 def database_detail(request, pk):
@@ -118,6 +61,80 @@ def database_detail(request, pk):
     elif request.method == 'DELETE':
         database.delete()
         return HttpResponse(status=204)
+
+
+@api_view(['POST'])
+@csrf_exempt
+def database_test(request):
+    data = request.data
+    DB = f"dbname={data['database']} \
+        user={data['user']} \
+        password={data['password']} \
+        host={data['host']} \
+        port={data['port']}"
+    try:
+        psycopg2.connect(DB)
+        return JsonResponse({"status": "OK"})
+    except psycopg2.OperationalError as e:
+        return JsonResponse({"status": "Error", "message": str(e)})
+
+
+@api_view(['POST', 'GET', 'PUT', 'DELETE'])
+@csrf_exempt
+def periodic(request, id=None):
+    if request.method == 'POST':
+        d = request.data
+        c = d['crontab']
+        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
+                                                              hour=c['hour'],
+                                                              day_of_week=c['day_of_week'],
+                                                              day_of_month=c['day_of_month'],
+                                                              month_of_year=c['month_of_year'],
+                                                              timezone=c['timezone'])
+        kwargs = json.dumps({"query": d['query']})
+        PeriodicTask.objects.create(crontab=cron,
+                                    name=d['name'],
+                                    task=d['task'],
+                                    start_time=d['start_time'] if d['start_time'] != '' else None,
+                                    one_off=d['one_off'],
+                                    kwargs=kwargs)
+        return HttpResponse()
+
+    elif request.method == 'GET':
+        tasks = PeriodicTask.objects.all()
+        serializer = PeriodicSerializer(tasks, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    elif request.method == 'PUT':
+        d = request.data
+        c = d['crontab']
+        cron, created = CrontabSchedule.objects.get_or_create(minute=c['minute'],
+                                                              hour=c['hour'],
+                                                              day_of_week=c['day_of_week'],
+                                                              day_of_month=c['day_of_month'],
+                                                              month_of_year=c['month_of_year'],
+                                                              timezone=c['timezone'])
+        kwargs = json.dumps({"query": d['query']})
+        PeriodicTask.objects.filter(id=id).update(crontab=cron,
+                                                  name=d['name'],
+                                                  task=d['task'],
+                                                  start_time=d['start_time'] if d['start_time'] != '' else None,
+                                                  one_off=d['one_off'],
+                                                  kwargs=kwargs)
+        return HttpResponse()
+
+    elif request.method == 'DELETE':
+        PeriodicTask.objects.filter(id=id).delete()
+        return HttpResponse()
+
+
+@api_view(['PUT'])
+@csrf_exempt
+def periodic_state(request):
+    active = request.data['active']
+    id = request.data['id']
+    PeriodicTask.objects.filter(pk=id).update(enabled=active)
+    return HttpResponse()
 
 
 @api_view(['POST', 'GET'])
@@ -201,19 +218,3 @@ def functions(request):
 @csrf_exempt
 def trigger(request):
     return HttpResponse()
-
-
-@api_view(['POST'])
-@csrf_exempt
-def database_test(request):
-    data = request.data
-    DB = f"dbname={data['database']} \
-        user={data['user']} \
-        password={data['password']} \
-        host={data['host']} \
-        port={data['port']}"
-    try:
-        psycopg2.connect(DB)
-        return JsonResponse({"status": "OK"})
-    except psycopg2.OperationalError as e:
-        return JsonResponse({"status": "Error", "message": str(e)})

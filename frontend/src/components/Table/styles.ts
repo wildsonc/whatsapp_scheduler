@@ -3,8 +3,7 @@ import { FaRegEdit, FaRegPlayCircle, FaRegPauseCircle } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 export const Table = styled.table`
-  max-width: 800px;
-  width: 100%;
+  width: 90%;
   margin: 10px;
   td {
     text-align: center;
@@ -24,7 +23,7 @@ export const Table = styled.table`
 export const TableTR = styled.tr``;
 
 export const TableTH = styled.th`
-  padding-bottom: 5px;
+  padding: 0 5px;
   color: var(--text);
 `;
 
@@ -53,8 +52,8 @@ export const TableTD = styled.td<TDProps>`
 `;
 
 export const EditIcon = styled(FaRegEdit)`
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   fill: var(--tertiary);
   :hover {
@@ -63,8 +62,8 @@ export const EditIcon = styled(FaRegEdit)`
 `;
 
 export const DeleteIcon = styled(RiDeleteBinLine)`
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   margin-left: 8px;
   fill: var(--tertiary);
   cursor: pointer;
@@ -74,8 +73,8 @@ export const DeleteIcon = styled(RiDeleteBinLine)`
 `;
 
 export const PlayIcon = styled(FaRegPlayCircle)`
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   margin-left: 8px;
   fill: var(--tertiary);
   cursor: pointer;
@@ -85,8 +84,8 @@ export const PlayIcon = styled(FaRegPlayCircle)`
 `;
 
 export const PauseIcon = styled(FaRegPauseCircle)`
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   margin-left: 8px;
   fill: var(--tertiary);
   cursor: pointer;

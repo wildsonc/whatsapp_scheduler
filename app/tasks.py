@@ -9,7 +9,6 @@ import PyPDF2
 import os
 
 
-@shared_task
 def execute_query(query):
     q = Query.objects.get(id=query)
     with psycopg2.connect(q.database.connection) as conn:
@@ -18,7 +17,6 @@ def execute_query(query):
             return cursor.fetchall()
 
 
-@shared_task
 def encrypt_pdf(path, password) -> str:
     pdfFile = open(path, 'rb')
     pdfReader = PyPDF2.PdfFileReader(pdfFile)
@@ -35,5 +33,5 @@ def encrypt_pdf(path, password) -> str:
 
 
 @shared_task
-def new():
+def mk_bill():
     pass

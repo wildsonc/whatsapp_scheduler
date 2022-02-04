@@ -1,4 +1,4 @@
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from django_celery_beat.models import PeriodicTask
 from rest_framework import serializers
 from .models import Database, Query
 

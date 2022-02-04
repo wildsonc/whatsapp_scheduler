@@ -105,3 +105,31 @@ class History(models.Model):
     class Meta:
         db_table = "wa_history"
         ordering = ['-sent_at']
+
+
+class Token(models.Model):
+    name = models.CharField(max_length=254)
+    token = models.CharField(max_length=254)
+    expire_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "tokens"
+        ordering = ['-expire_at']
+
+    def __str__(self):
+        return self.name
+
+
+class MKUser(models.Model):
+    name = models.CharField(max_length=254, unique=True)
+    token = models.CharField(max_length=254)
+    cd_servico = models.CharField(max_length=5)
+    password = models.CharField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "mk_users"
+
+    def __str__(self):
+        return self.name

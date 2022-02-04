@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Redirect } from "react-router-dom";
 import {
   Container,
   LinkWrapper,
@@ -10,6 +10,8 @@ import {
   QueryIcon,
   DashboardIcon,
   CompanyIcon,
+  FlowerIcon,
+  PLink,
 } from "./styles";
 
 export interface Props {}
@@ -26,16 +28,22 @@ const Sidebar: React.FC<Props> = ({}) => {
           </SLink>
         </LinkWrapper>
       ))}
+      <LinkWrapper>
+        <PLink href="https://flower.explorernet.com.br/" target="_blank">
+          <FlowerIcon />
+          <LinkLabel>Flower</LinkLabel>
+        </PLink>
+      </LinkWrapper>
     </Container>
   );
 };
 
 const linksArray = [
-  {
-    label: "Dashboard",
-    icon: <DashboardIcon />,
-    to: "/",
-  },
+  // {
+  //   label: "Dashboard",
+  //   icon: <DashboardIcon />,
+  //   to: "/",
+  // },
   {
     label: "Tasks",
     icon: <TaskIcon />,

@@ -270,10 +270,10 @@ const Tasks: React.FC = () => {
           <thead>
             <TableTR>
               <TableTH>Active</TableTH>
+              <TableTH>Runs</TableTH>
               <TableTH>Task</TableTH>
               <TableTH>Crontab</TableTH>
               <TableTH>Last run</TableTH>
-              <TableTH>Runs</TableTH>
               <TableTH>Run once</TableTH>
               <TableTH>Updated at</TableTH>
               <TableTH>Actions</TableTH>
@@ -283,6 +283,7 @@ const Tasks: React.FC = () => {
             {data.map((i) => (
               <TableTR key={i.id}>
                 <TableTD active={i.enabled} className="active" />
+                <TableTD>{i.total_run_count}</TableTD>
                 <TableTD>{i.name}</TableTD>
                 <TableTD>{`${i.crontab.minute} 
                 ${i.crontab.hour} 
@@ -292,11 +293,10 @@ const Tasks: React.FC = () => {
                 <TableTD>
                   {i.last_run_at ? formatDate(i.last_run_at) : ""}
                 </TableTD>
-                <TableTD>{i.total_run_count}</TableTD>
                 <TableTD active={i.one_off} className="active" />
                 <TableTD>{formatDate(i.date_changed)}</TableTD>
                 <TableTD>
-                  <button onClick={() => edit(i)}>
+                  <button onClick={() => edit(i)} style={{ marginLeft: 10 }}>
                     <EditIcon />
                   </button>
                   <button onClick={() => remove(i.name, i.id)}>
