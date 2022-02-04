@@ -32,3 +32,8 @@ def encrypt_pdf(path, password) -> str:
     resultPdf.close()
     os.remove(path)
     return newPath.split('/')[-1]
+
+
+@shared_task
+def new():
+    pass
