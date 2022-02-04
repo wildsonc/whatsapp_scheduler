@@ -42,6 +42,7 @@ interface Task {
   total_run_count?: number;
   one_off: boolean;
   start_time?: string;
+  date_changed: string;
   query?: string;
 }
 
@@ -274,6 +275,7 @@ const Tasks: React.FC = () => {
               <TableTH>Last run</TableTH>
               <TableTH>Runs</TableTH>
               <TableTH>Run once</TableTH>
+              <TableTH>Updated at</TableTH>
               <TableTH>Actions</TableTH>
             </TableTR>
           </thead>
@@ -292,6 +294,7 @@ const Tasks: React.FC = () => {
                 </TableTD>
                 <TableTD>{i.total_run_count}</TableTD>
                 <TableTD active={i.one_off} className="active" />
+                <TableTD>{formatDate(i.date_changed)}</TableTD>
                 <TableTD>
                   <button onClick={() => edit(i)}>
                     <EditIcon />
