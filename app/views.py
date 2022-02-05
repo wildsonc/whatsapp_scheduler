@@ -250,7 +250,7 @@ def execute(query: str, db, test=False, many=True):
 @csrf_exempt
 def functions(request):
     tasks = list(sorted(name for name in current_app.tasks
-                        if not name.startswith('celery.')))
+                        if not name.startswith('celery.') and not name.split('.')[-1].startswith('_')))
     return JsonResponse({"data": tasks})
 
 
