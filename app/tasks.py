@@ -1,20 +1,27 @@
-from psycopg2.extras import RealDictCursor
 from celery import shared_task
+from django.conf import settings
 
-from .models import Query, Database
-from integrations.models import Dialog
+from .mk import MK
 
-import psycopg2
 import PyPDF2
+import wget
 import os
 
 
-def execute_query(query):
-    q = Query.objects.get(id=query)
-    with psycopg2.connect(q.database.connection) as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(q.sql)
-            return cursor.fetchall()
+@shared_task
+def mk_bill(args):
+    file_name = f"{args[0]}.pdf"
+    path = f"{settings.BASE_DIR}/download/{file_name}"
+    if not os.path.exists(path):
+        mk = MK('Scheduler')
+        fatura = mk.segunda_via(args[0])
+        if fatura['status'] == 'OK':
+            path = path.replace('.', '-insecure.')
+            wget.download(fatura['PathDownload'], path, None)
+            encrypt_pdf(path, args[1])
+    link = f"{settings.DOMAIN}/download/{file_name}"
+    print('{"file_name": "'+file_name+'", "link": "'+link+'"}')
+    return {"file_name": file_name, "link": link}
 
 
 def encrypt_pdf(path, password) -> str:
@@ -24,14 +31,8 @@ def encrypt_pdf(path, password) -> str:
     for pageNum in range(pdfReader.numPages):
         pdfWriter.addPage(pdfReader.getPage(pageNum))
     pdfWriter.encrypt(password)
-    newPath = path.replace('-pass.', '.')
+    newPath = path.replace('-insecure.', '.')
     resultPdf = open(newPath, 'wb')
     pdfWriter.write(resultPdf)
     resultPdf.close()
-    os.remove(path)
-    return newPath.split('/')[-1]
-
-
-@shared_task
-def mk_bill():
-    pass
+    os.remove(f"{path}*")

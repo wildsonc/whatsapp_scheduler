@@ -33,6 +33,7 @@ interface SQL {
   sql: string;
   hsm: string;
   task?: string;
+  once_time: boolean;
 }
 
 interface Database {
@@ -91,6 +92,7 @@ const Query: React.FC = () => {
         setValue("database", response.data.database.id);
         setValue("hsm", response.data.hsm), { shouldValidate: true };
         setValue("task", response.data.task);
+        setValue("once_time", response.data.once_time);
       });
     }
   }, [hsm, data]);
@@ -139,7 +141,7 @@ const Query: React.FC = () => {
           return setMessage('A "company" column is required!');
         }
         if (!result.data[0].hasOwnProperty("body_args") && hasArgs) {
-          return setMessage('An "body_args" column is required!');
+          return setMessage('A "body_args" column is required!');
         }
         setDisabled(false);
         let head = [];
@@ -217,7 +219,7 @@ const Query: React.FC = () => {
               {response.data.body.args ? response.data.body.args : ""}
             </span>
           </Args>
-          {response.data.buttons?.map(
+          {response.data.buttons?.data.map(
             (btn: { variable: number; type: string }) => (
               <Args active={btn.variable}>
                 Button <span>{btn.variable ? btn.type : ""}</span>
@@ -232,7 +234,7 @@ const Query: React.FC = () => {
 
   const selectTasks = (
     <Column style={{ paddingTop: 20 }}>
-      <Label>Task</Label>
+      <Label>Task for document</Label>
       <Select {...register("task")} style={{ width: "200px", height: 40 }}>
         {tasks.data.map((f: any) => (
           <option value={f} key={f}>
@@ -305,7 +307,17 @@ const Query: React.FC = () => {
             </Columns>
             <Columns>
               {template}
-              {needTask ? selectTasks : null}
+              <Column>
+                <Columns style={{ flexWrap: "nowrap" }}>
+                  <Input
+                    type="checkbox"
+                    {...register("once_time")}
+                    style={{ width: 30, marginTop: 8 }}
+                  />
+                  <Label>Send only once</Label>
+                </Columns>
+                {needTask ? selectTasks : null}
+              </Column>
             </Columns>
             {result}
             <Columns>

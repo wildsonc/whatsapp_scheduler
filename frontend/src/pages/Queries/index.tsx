@@ -23,6 +23,7 @@ interface Queries {
   name: string;
   hsm: string;
   update_at: string;
+  once_time: boolean;
 }
 
 interface Edit {
@@ -93,6 +94,7 @@ const Queries: React.FC = () => {
             <th>Name</th>
             <th>Database</th>
             <th>HSM</th>
+            <th>Once time</th>
             <th>Updated at</th>
             <th>Actions</th>
           </tr>
@@ -103,6 +105,7 @@ const Queries: React.FC = () => {
               <td>{i.name}</td>
               <td>{i.database.name}</td>
               <td>{i.hsm}</td>
+              <TableTD active={i.once_time} className="active" />
               <td>{formatDate(i.update_at)}</td>
               <TableTD>
                 <Link to={`query/${i.id}`}>

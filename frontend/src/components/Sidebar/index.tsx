@@ -12,6 +12,7 @@ import {
   CompanyIcon,
   FlowerIcon,
   PLink,
+  BlockIcon,
 } from "./styles";
 
 export interface Props {}
@@ -63,6 +64,11 @@ const linksArray = [
     label: "Company",
     icon: <CompanyIcon />,
     to: "/company",
+  },
+  {
+    label: "Blacklist",
+    icon: <BlockIcon />,
+    to: "/blacklist",
   },
 ];
 

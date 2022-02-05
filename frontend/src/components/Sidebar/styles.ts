@@ -1,9 +1,11 @@
-import styled, { css } from "styled-components";
 import { HiOutlineDatabase, HiOutlineClock } from "react-icons/hi";
+import { MdOutlineAppBlocking } from "react-icons/md";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { VscDashboard } from "react-icons/vsc";
 import { FaRegBuilding } from "react-icons/fa";
 import { SiCelery } from "react-icons/si";
+
+import styled, { css } from "styled-components";
 import { Link } from "react-router-dom";
 
 export const Container = styled.div`
@@ -80,5 +82,9 @@ export const CompanyIcon = styled(FaRegBuilding)`
   ${Icon}
 `;
 export const FlowerIcon = styled(SiCelery)`
+  ${Icon}
+`;
+
+export const BlockIcon = styled(MdOutlineAppBlocking)`
   ${Icon}
 `;

@@ -6,6 +6,7 @@ import Queries from "./pages/Queries";
 import Tasks from "./pages/Tasks";
 import Query from "./pages/Query";
 import Company from "./pages/Company";
+import Blacklist from "./pages/Blacklist";
 
 const Routes = () => {
   return (
@@ -30,6 +31,9 @@ const Routes = () => {
       </Route>
       <Route exact path="/company">
         <Company />
+      </Route>
+      <Route exact path="/blacklist">
+        <Blacklist />
       </Route>
     </Switch>
   );

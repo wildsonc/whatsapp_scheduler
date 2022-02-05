@@ -1,6 +1,6 @@
 from django_celery_beat.models import PeriodicTask
 from rest_framework import serializers
-from .models import Database, Query
+from .models import Database, Query, Contact
 
 
 class CrontabSerializer(serializers.Serializer):
@@ -57,7 +57,8 @@ class QuerySerializer(serializers.ModelSerializer):
 class QuerySerializerDetail(serializers.ModelSerializer):
     class Meta:
         model = Query
-        fields = ['database', 'name', 'description', 'sql', 'hsm', 'task']
+        fields = ['database', 'name', 'description',
+                  'sql', 'hsm', 'task', 'once_time']
 
     def create(self, validated_data):
         return Query.objects.create(**validated_data)
@@ -68,5 +69,14 @@ class QuerySerializerDetail(serializers.ModelSerializer):
             'description', instance.description)
         instance.sql = validated_data.get('sql', instance.sql)
         instance.database = validated_data.get('database', instance.database)
+        instance.hsm = validated_data.get('hsm', instance.hsm)
+        instance.once_time = validated_data.get(
+            'once_time', instance.once_time)
         instance.save()
         return instance
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'number']

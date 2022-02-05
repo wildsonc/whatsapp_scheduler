@@ -119,7 +119,7 @@ TIME_ZONE = os.getenv('TZ')
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -130,6 +130,10 @@ STATIC_ROOT = '/var/www/static'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [str(BASE_DIR.joinpath('static'))]
+
+MEDIA_ROOT = str(BASE_DIR.joinpath('download'))
+
+MEDIA_URL = '/download/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -150,3 +154,6 @@ CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = f'amqp://{AMQP_USER}:{AMQP_PASS}@{AMQP_HOST}:{AMQP_PORT}/{AMQP_VHOST}'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+MK_URL = os.getenv('MK_URL')
+DOMAIN = os.getenv('DOMAIN')

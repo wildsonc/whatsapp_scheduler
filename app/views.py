@@ -1,17 +1,27 @@
-from .serializers import DatabaseSerializer, QuerySerializer, QuerySerializerDetail, DatabaseSerializerList, PeriodicSerializer
+from .serializers import (DatabaseSerializer,
+                          QuerySerializer,
+                          QuerySerializerDetail,
+                          DatabaseSerializerList,
+                          ContactSerializer,
+                          PeriodicSerializer)
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from psycopg2.extras import RealDictCursor
+from django.conf import settings
 
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
+from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
 from celery import current_app
 
-from .models import Database, Query
+from .models import Database, Query, Contact
+from .utils import new_contact
 from .tasks import *
+from .utils import *
+from .mk import MK
 
 import psycopg2
+import mimetypes
 import json
 
 
@@ -121,11 +131,12 @@ def periodic(request, id=None):
                                                   start_time=d['start_time'] if d['start_time'] != '' else None,
                                                   one_off=d['one_off'],
                                                   kwargs=kwargs)
+        PeriodicTasks.update_changed()  # update celery beat in runtime
         return HttpResponse()
 
     elif request.method == 'DELETE':
         PeriodicTask.objects.filter(id=id).delete()
-        return HttpResponse()
+        return HttpResponse(status=204)
 
 
 @api_view(['PUT'])
@@ -134,7 +145,37 @@ def periodic_state(request):
     active = request.data['active']
     id = request.data['id']
     PeriodicTask.objects.filter(pk=id).update(enabled=active)
+    PeriodicTasks.update_changed()  # update celery beat in runtime
     return HttpResponse()
+
+
+@api_view(['POST', 'GET', 'DELETE'])
+@csrf_exempt
+def blacklist(request, phone=None):
+    if request.method == "GET":
+        contacts = Contact.objects.filter(blacklist=True).all()
+        serializer = ContactSerializer(contacts, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    if request.method == "DELETE":
+        contact = Contact.objects.get(number=phone)
+        contact.blacklist = False
+        contact.save()
+        return HttpResponse(status=204)
+
+    if request.method == "POST":
+        print(phone)
+        try:
+            contact = Contact.objects.get(number=phone)
+            contact.blacklist = True
+            contact.save()
+            return HttpResponse(status=201)
+
+        except Contact.DoesNotExist:
+            contact = new_contact(phone)
+            contact.blacklist = True
+            contact.save()
+            return HttpResponse()
 
 
 @api_view(['POST', 'GET'])
@@ -186,7 +227,6 @@ def query_detail(request, pk):
 def run(request):
     data = request.data
     r = execute(data['query'], data['database'], True)
-    print(r)
     return JsonResponse(r, safe=False)
 
 
@@ -214,7 +254,18 @@ def functions(request):
     return JsonResponse({"data": tasks})
 
 
+@csrf_exempt
+def download(request, file):
+    filepath = f'{settings.BASE_DIR}/download/{file}'
+    path = open(filepath, 'rb')
+    mime_type, _ = mimetypes.guess_type(filepath)
+    response = HttpResponse(path, content_type=mime_type)
+    response['Content-Disposition'] = f"attachment; filename={file}"
+    return response
+
+
 @api_view(['GET'])
 @csrf_exempt
 def trigger(request):
+    execute_query(request.query_params.get('id'))
     return HttpResponse()

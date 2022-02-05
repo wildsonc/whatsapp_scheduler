@@ -82,6 +82,7 @@ class Query(models.Model):
     name = models.CharField(max_length=60)
     description = models.CharField(max_length=254, null=True, blank=True)
     hsm = models.CharField(max_length=254, null=True, blank=True)
+    once_time = models.BooleanField(default=False)
     task = models.CharField(max_length=254, null=True, blank=True)
     sql = models.TextField()
     database = models.ForeignKey(Database, on_delete=CASCADE)
@@ -133,3 +134,29 @@ class MKUser(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Template(models.Model):
+    name = models.CharField(max_length=512, unique=True)
+    header = models.CharField(max_length=250, null=True)
+    header_args = models.IntegerField(default=0, null=True)
+    header_type = models.CharField(max_length=20, null=True)
+    body = models.CharField(max_length=1024, null=True)
+    body_args = models.IntegerField(default=0, null=True)
+    footer = models.CharField(max_length=250, null=True)
+    buttons = models.CharField(max_length=250, null=True)
+    buttons_args = models.IntegerField(default=0, null=True)
+
+    class Meta:
+        db_table = "dialog_templates"
+
+    def __str__(self):
+        return self.name
+
+
+class Contact(models.Model):
+    number = models.CharField(max_length=20, unique=True)
+    wa_id = models.CharField(max_length=20, null=True)
+    status = models.CharField(max_length=20)
+    blacklist = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)

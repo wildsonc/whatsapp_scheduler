@@ -42,6 +42,7 @@ def dialog_detail(request, pk):
         serializer = DialogSerializer(database, data=data)
         if serializer.is_valid():
             serializer.save()
+            print(serializer.data)
             return JsonResponse(serializer.data)
         return JsonResponse(serializer.errors, status=400)
 
@@ -92,7 +93,8 @@ def parser_template(template):
             result['body'] = {}
             result['body']['text'] = component['text']
             try:
-                result['body']['args'] = len(result['body']['text'].split('{{')) - 1
+                result['body']['args'] = len(
+                    result['body']['text'].split('{{')) - 1
             except:
                 result['body_args'] = 0
         elif component['type'] == 'FOOTER':
@@ -106,12 +108,17 @@ def parser_template(template):
                 result['header']['args'] = 0
         elif component['type'] == 'BUTTONS':
             buttons = []
+            args = 0
             for button in component['buttons']:
                 data = {"type": button['type'],
                         "text": button['text'],
                         'variable': 0}
                 if 'example' in button:
                     data['variable'] = 1
+                    args += 1
                 buttons.append(data)
-            result['buttons'] = buttons
+            if buttons:
+                result['buttons'] = {}
+                result['buttons']['data'] = buttons
+                result['buttons']['args'] = args
     return result
