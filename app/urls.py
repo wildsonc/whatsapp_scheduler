@@ -18,5 +18,10 @@ urlpatterns = [
     path('periodic', views.periodic, name='periodic'),
     path('periodic/<int:id>', views.periodic, name='periodic'),
     path('periodic-state', views.periodic_state, name='periodic_state'),
+    path('templates/<str:company>', views.list_templates, name='list_templates'),
+    path('templates/<str:company>/<str:name>',
+         views.get_template, name='get_template'),
+    path('dialog', views.dialog, name='dialog'),
+    path('dialog/<int:pk>', views.dialog_detail, name='dialog_detail'),
     path('download/<str:file>', views.download, name='download'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

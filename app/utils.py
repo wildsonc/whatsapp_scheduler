@@ -2,10 +2,9 @@ from psycopg2.extras import RealDictCursor
 from django.conf import settings
 from celery import shared_task
 
-from django_celery_results.models import TaskResult
-from .models import Query, Template, Contact
-from integrations.models import Dialog
 from .exceptions import Blacklist, TaskDuplicated, WhatsappInvalid
+from .models import Query, Template, Contact, Dialog
+from django_celery_results.models import TaskResult
 from datetime import date
 from .tasks import *
 
@@ -14,8 +13,8 @@ import requests
 import json
 
 from io import StringIO
-import sys
 import contextlib
+import sys
 
 URL = 'https://waba.360dialog.io/v1'
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="icon" type="image/x-icon" href="/static/favicon.30b4f55a.ico" />
+    <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+
+        <form action="/login" method="post">
+          {% csrf_token %}
+          {% if request.GET.next %}
+          <input type="hidden" name="next" value={{request.GET.next}}>
+          {% endif %}
+          <div class="controler">
+            <span>Username</span>
+            <input type="text" name="username">
+          </div>
+          <div class="controler">
+            <span>Password</span>
+            <input type="password" name="password">
+          </div>
+          <div class="controler-btn">
+            <button class="button">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

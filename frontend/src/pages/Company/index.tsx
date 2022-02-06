@@ -42,12 +42,12 @@ const Company: React.FC = () => {
   } = useForm<Company>();
   const { handleSubmit: handleSubmitDelete, setValue: setValueDelete } =
     useForm<Edit>();
-  const { data, error, mutate } = useFetch<Company[]>("dialog");
+  const { data, error, mutate } = useFetch<Company[]>("api/dialog");
 
   // Add
   const toggle = () => setIsShow(!isShow);
   const onSubmit: SubmitHandler<Company> = (r) => {
-    api.post(`dialog`, r).then((response) => {
+    api.post(`api/dialog`, r).then((response) => {
       mutate(data);
       toggle();
     });
@@ -55,7 +55,7 @@ const Company: React.FC = () => {
   // Edit
   const toggleEdit = () => setShowEdit(!showEdit);
   const onEdit: SubmitHandler<Company> = (r) => {
-    api.put(`dialog/${r.id}`, r).then((response) => {
+    api.put(`api/dialog/${r.id}`, r).then((response) => {
       mutate(data);
       toggleEdit();
     });
@@ -70,7 +70,7 @@ const Company: React.FC = () => {
   // Delete
   const toggleDelete = () => setShowDelete(!showDelete);
   const onDelete: SubmitHandler<Edit> = (r) => {
-    api.delete(`dialog/${r.id}`).then((response) => {
+    api.delete(`api/dialog/${r.id}`).then((response) => {
       mutate(data);
       toggleDelete();
     });

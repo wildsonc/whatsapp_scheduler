@@ -1,4 +1,3 @@
-from enum import unique
 from django.db import models
 from django.conf import settings
 from django.db.models.deletion import CASCADE
@@ -51,9 +50,6 @@ class Setting(models.Model):
     def __str__(self):
         return self.value
 
-    class Meta:
-        db_table = "settings"
-
 
 class Database(models.Model):
     name = models.CharField(max_length=60, unique=True)
@@ -74,9 +70,6 @@ class Database(models.Model):
     def connection(self):
         return f"dbname={self.database} user={self.user} password={self.password} host={self.host} port={self.port}"
 
-    class Meta:
-        db_table = "databases"
-
 
 class Query(models.Model):
     name = models.CharField(max_length=60)
@@ -92,21 +85,6 @@ class Query(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        db_table = "queries"
-
-
-class History(models.Model):
-    phone = models.CharField(max_length=20)
-    status = models.CharField(max_length=25)
-    template = models.CharField(max_length=20)
-    args = models.CharField(max_length=1024)
-    sent_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "wa_history"
-        ordering = ['-sent_at']
-
 
 class Token(models.Model):
     name = models.CharField(max_length=254)
@@ -115,7 +93,7 @@ class Token(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "tokens"
+        db_table = "mk_tokens"
         ordering = ['-expire_at']
 
     def __str__(self):
@@ -147,9 +125,6 @@ class Template(models.Model):
     buttons = models.CharField(max_length=250, null=True)
     buttons_args = models.IntegerField(default=0, null=True)
 
-    class Meta:
-        db_table = "dialog_templates"
-
     def __str__(self):
         return self.name
 
@@ -160,3 +135,17 @@ class Contact(models.Model):
     status = models.CharField(max_length=20)
     blacklist = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Dialog(models.Model):
+    company = models.CharField(max_length=254, unique=True)
+    color = models.CharField(max_length=50, null=True)
+    api_key = models.CharField(max_length=1000)
+    phone_number = models.CharField(max_length=25)
+    active = models.BooleanField(default=True)
+    namespace = models.CharField(max_length=250, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.company} - {self.phone_number}"

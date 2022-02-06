@@ -69,18 +69,17 @@ const Tasks: React.FC = () => {
   let [showEdit, setShowEdit] = useState(false);
   let [deleteContent, setDeleteContent] = useState({ name: "", id: 0 });
 
-  const { register, handleSubmit, setValue } = useForm<Task>();
+  const { register, handleSubmit } = useForm<Task>();
   const {
     register: registerEdit,
     handleSubmit: handleSubmitEdit,
     setValue: setValueEdit,
-    watch,
   } = useForm<Task>();
   const { handleSubmit: handleSubmitDelete, setValue: setValueDelete } =
     useForm<Edit>();
-  const { data, mutate } = useFetch<Task[]>("periodic");
-  const { data: query } = useFetch<SQL[]>("query");
-  const { data: tasks } = useFetch<Tasks>("tasks");
+  const { data, mutate } = useFetch<Task[]>("api/periodic");
+  const { data: query } = useFetch<SQL[]>("api/query");
+  const { data: tasks } = useFetch<Tasks>("api/tasks");
 
   if (!tasks) {
     return <>Loading...</>;
@@ -92,7 +91,7 @@ const Tasks: React.FC = () => {
   // Add
   const toggle = () => setIsShow(!isShow);
   const onSubmit: SubmitHandler<Task> = (r) => {
-    api.post(`periodic`, r).then((response) => {
+    api.post(`api/periodic`, r).then((response) => {
       mutate(data);
       toggle();
     });
@@ -100,7 +99,7 @@ const Tasks: React.FC = () => {
   // Edit
   const toggleEdit = () => setShowEdit(!showEdit);
   const onEdit: SubmitHandler<Task> = (r) => {
-    api.put(`periodic/${r.id}`, r).then((response) => {
+    api.put(`api/periodic/${r.id}`, r).then((response) => {
       mutate(data);
       toggleEdit();
     });
@@ -120,7 +119,7 @@ const Tasks: React.FC = () => {
   // Delete
   const toggleDelete = () => setShowDelete(!showDelete);
   const onDelete: SubmitHandler<Edit> = (r) => {
-    api.delete(`periodic/${r.id}`).then((response) => {
+    api.delete(`api/periodic/${r.id}`).then((response) => {
       mutate(data);
       toggleDelete();
     });
@@ -254,7 +253,7 @@ const Tasks: React.FC = () => {
   };
 
   const controlTask = (id: number, active: boolean) => {
-    api.put("periodic-state", { id, active }).then(() => {
+    api.put("api/periodic-state", { id, active }).then(() => {
       mutate(data);
     });
   };

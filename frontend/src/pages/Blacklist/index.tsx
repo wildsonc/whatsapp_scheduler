@@ -13,7 +13,7 @@ interface PhoneList {
 
 const Blacklist: React.FC = () => {
   const { register, handleSubmit, setValue, watch } = useForm<PhoneList>();
-  const { data, mutate } = useFetch<PhoneList[]>("blacklist");
+  const { data, mutate } = useFetch<PhoneList[]>("api/blacklist");
 
   const onSubmit: SubmitHandler<PhoneList> = (r) => {
     if (r.number) {

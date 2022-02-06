@@ -31,7 +31,7 @@ interface Edit {
 }
 
 const Queries: React.FC = () => {
-  const { data, mutate } = useFetch<Queries[]>("query");
+  const { data, mutate } = useFetch<Queries[]>("api/query");
   let [deleteContent, setDeleteContent] = useState({ name: "", id: 0 });
   const { handleSubmit, setValue } = useForm<Edit>();
   let [showDelete, setShowDelete] = useState(false);
@@ -42,7 +42,7 @@ const Queries: React.FC = () => {
 
   const toggleDelete = () => setShowDelete(!showDelete);
   const onDelete: SubmitHandler<Edit> = (r) => {
-    api.delete(`query/${r.id}`).then((response) => {
+    api.delete(`api/query/${r.id}`).then((response) => {
       mutate(data);
       toggleDelete();
     });

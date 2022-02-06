@@ -1,0 +1,87 @@
+version: '3.3'
+
+services:
+  web:
+    image: wildsonc/wa_scheduler
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8088 --access-logfile - --workers 3
+    environment:
+      DB_HOST: postgres.explorernet.com.br
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: w0nd3rb3stEXP
+      DB_NAME: scheduler
+      AMQP_HOST: amqp.explorernet.com.br
+      AMQP_PORT: 5672
+      AMQP_VHOST: whatsapp
+      AMQP_USER: admin
+      AMQP_PASS: w0nd3rb3stEXP
+      TZ: America/Sao_Paulo
+      MK_URL: http://mk.explorernet.com.br:8080
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.scheduler-http.rule=Host(`scheduler.explorernet.com.br`)
+        - traefik.http.routers.scheduler-http.entrypoints=http
+        - traefik.http.routers.scheduler-http.middlewares=https-redirect
+        - traefik.http.routers.scheduler-https.rule=Host(`scheduler.explorernet.com.br`)
+        - traefik.http.routers.scheduler-https.entrypoints=https
+        - traefik.http.routers.scheduler-https.tls=true
+        - traefik.http.routers.scheduler-https.tls.certresolver=le
+        - traefik.http.services.scheduler.loadbalancer.server.port=8088
+    volumes:
+      - /volumes/whatsapp_scheduler:/code
+  beat:
+    image: wildsonc/wa_scheduler
+    command: celery -A core beat -l DEBUG -S django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      DB_HOST: postgres.explorernet.com.br
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: w0nd3rb3stEXP
+      DB_NAME: scheduler
+      AMQP_HOST: amqp.explorernet.com.br
+      AMQP_PORT: 5672
+      AMQP_VHOST: whatsapp
+      AMQP_USER: admin
+      AMQP_PASS: w0nd3rb3stEXP
+      TZ: America/Sao_Paulo
+      MK_URL: http://mk.explorernet.com.br:8080
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.enable=false
+    volumes:
+      - /volumes/whatsapp_scheduler:/code
+  worker:
+    image: wildsonc/wa_scheduler
+    command: celery -A core worker -l INFO
+    environment:
+      DB_HOST: postgres.explorernet.com.br
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: w0nd3rb3stEXP
+      DB_NAME: scheduler
+      AMQP_HOST: amqp.explorernet.com.br
+      AMQP_PORT: 5672
+      AMQP_VHOST: whatsapp
+      AMQP_USER: admin
+      AMQP_PASS: w0nd3rb3stEXP
+      TZ: America/Sao_Paulo
+      MK_URL: http://mk.explorernet.com.br:8080
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 2
+      labels:
+        - traefik.enable=false
+    volumes:
+      - /volumes/whatsapp_scheduler:/code
+
+networks:
+  traefik-public:
+    external: true

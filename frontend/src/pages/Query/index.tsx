@@ -66,11 +66,12 @@ type Params = {
 };
 
 const Query: React.FC = () => {
-  const { data: dataCompany, mutate } = useFetch<Company[]>(`dialog`);
-  const { data } = useFetch<Database[]>("database");
-  const { data: tasks } = useFetch<Tasks>("tasks");
-  const [company, setCompany] = useState<String>("explorernet");
-  const { data: hsm } = useFetch<Templates>(`/templates/${company}`);
+  const initialHsm = { templates: [""] };
+  const { data: dataCompany, mutate } = useFetch<Company[]>(`api/dialog`);
+  const { data } = useFetch<Database[]>("api/database");
+  const { data: tasks } = useFetch<Tasks>("api/tasks");
+  const [company, setCompany] = useState<string>("");
+  const [hsm, setHsm] = useState<Templates>(initialHsm);
   const [template, setTemplate] = useState<JSX.Element>();
   const [templateArgs, setTemplateArgs] = useState<JSX.Element>();
   const [result, setResult] = useState<JSX.Element>();
@@ -86,7 +87,7 @@ const Query: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      api.get(`query/${id}`).then((response) => {
+      api.get(`api/query/${id}`).then((response) => {
         setValue("sql", response.data.sql);
         setValue("name", response.data.name);
         setValue("database", response.data.database.id);
@@ -95,15 +96,22 @@ const Query: React.FC = () => {
         setValue("once_time", response.data.once_time);
       });
     }
-  }, [hsm, data]);
+    if (dataCompany) {
+      if (!company && dataCompany[0]?.company) {
+        api
+          .get(`api/templates/${dataCompany[0].company}`)
+          .then((response) => setHsm(response.data));
+      }
+    }
+  }, [dataCompany]);
 
+  if (!dataCompany) {
+    return <>Loading...</>;
+  }
   if (!data) {
     return <>Loading...</>;
   }
   if (!hsm) {
-    return <>Loading...</>;
-  }
-  if (!dataCompany) {
     return <>Loading...</>;
   }
   if (!tasks) {
@@ -113,9 +121,9 @@ const Query: React.FC = () => {
   const onSubmit: SubmitHandler<SQL> = (r) => {
     r.task = needTask ? r.task : undefined;
     if (id) {
-      api.put(`query/${id}`, r).then(() => history.push("/queries"));
+      api.put(`api/query/${id}`, r).then(() => history.push("/queries"));
     } else {
-      api.post(`query`, r).then(() => history.push("/queries"));
+      api.post(`api/query`, r).then(() => history.push("/queries"));
     }
   };
 
@@ -180,6 +188,7 @@ const Query: React.FC = () => {
     const value = event.target.value;
     setCompany(value);
     mutate(dataCompany);
+    api.get(`api/templates/${value}`).then((response) => setHsm(response.data));
   };
 
   const selectHsm = (event: React.ChangeEvent<HTMLSelectElement>) => {
