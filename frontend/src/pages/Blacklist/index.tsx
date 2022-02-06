@@ -13,11 +13,11 @@ interface PhoneList {
 
 const Blacklist: React.FC = () => {
   const { register, handleSubmit, setValue, watch } = useForm<PhoneList>();
-  const { data, mutate } = useFetch<PhoneList[]>("api/blacklist");
+  const { data, mutate } = useFetch<PhoneList[]>("/api/blacklist");
 
   const onSubmit: SubmitHandler<PhoneList> = (r) => {
     if (r.number) {
-      api.post(`blacklist/${r.number}`, {}).then((response) => {
+      api.post(`/api/blacklist/${r.number}`, {}).then((response) => {
         mutate(data);
         setValue("number", "");
       });
@@ -25,7 +25,7 @@ const Blacklist: React.FC = () => {
   };
 
   const remove = (number: string) => {
-    api.delete(`blacklist/${number}`).then((response) => {
+    api.delete(`/api/blacklist/${number}`).then((response) => {
       mutate(data);
     });
   };
