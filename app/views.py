@@ -31,8 +31,7 @@ URL = "https://waba.360dialog.io/v1/"
 @csrf_exempt
 def database(request):
     if request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = DatabaseSerializer(data=data)
+        serializer = DatabaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -59,7 +58,7 @@ def database_detail(request, pk):
         return HttpResponse(status=404)
 
     if request.method == 'PUT':
-        data = JSONParser().parse(request)
+        data = request.data
         serializer = DatabaseSerializer(database, data=data)
         if serializer.is_valid():
             serializer.save()
@@ -184,7 +183,7 @@ def blacklist(request, phone=None):
 @csrf_exempt
 def query(request):
     if request.method == 'POST':
-        data = JSONParser().parse(request)
+        data = request.data
         print(data)
         serializer = QuerySerializerDetail(data=data)
         if serializer.is_valid():
@@ -208,7 +207,7 @@ def query_detail(request, pk):
         return HttpResponse(status=404)
 
     if request.method == 'PUT':
-        data = JSONParser().parse(request)
+        data = request.data
         serializer = QuerySerializerDetail(query, data=data)
         if serializer.is_valid():
             serializer.save()
@@ -277,7 +276,7 @@ def trigger(request):
 @csrf_exempt
 def dialog(request):
     if request.method == 'POST':
-        data = JSONParser().parse(request)
+        data = request.data
         serializer = DialogSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -299,7 +298,7 @@ def dialog_detail(request, pk):
         return HttpResponse(status=404)
 
     if request.method == 'PUT':
-        data = JSONParser().parse(request)
+        data = request.data
         serializer = DialogSerializer(database, data=data)
         if serializer.is_valid():
             serializer.save()
