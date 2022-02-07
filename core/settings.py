@@ -157,4 +157,4 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 MK_URL = os.getenv('MK_URL')
-DOMAIN = 'localhost:8088'
+DOMAIN = os.getenv('DOMAIN')

@@ -26,3 +26,11 @@ class WhatsappInvalid(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class HsmError(Exception):
+    def __init__(self, *args) -> None:
+        self.message = args[0]
+
+    def __str__(self) -> str:
+        return self.message

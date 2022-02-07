@@ -2,7 +2,7 @@ from psycopg2.extras import RealDictCursor
 from django.conf import settings
 from celery import shared_task
 
-from .exceptions import Blacklist, TaskDuplicated, WhatsappInvalid
+from .exceptions import Blacklist, TaskDuplicated, WhatsappInvalid, HsmError
 from .models import Query, Template, Contact, Dialog
 from django_celery_results.models import TaskResult
 from datetime import date
@@ -47,11 +47,11 @@ def execute_query(query):
 
 @shared_task
 def _send_hsm(hsm, query, task, once_time):
-    # prevent_duplicate(hsm, query, task, once_time)
+    prevent_duplicate(hsm, query, task, once_time)
     template = Template.objects.filter(name=hsm).first()
     if not template:
         r = requests.get(
-            f"{settings.DOMAIN}/templates/{query['company']}/{hsm}")
+            f"{settings.DOMAIN}/api/templates/{query['company']}/{hsm}")
         if r.status_code == 200:
             r = r.json()
             template, created = Template.objects.get_or_create(name=hsm,
@@ -95,7 +95,8 @@ def _send_hsm(hsm, query, task, once_time):
               'Content-Type': "application/json"}
     r = requests.post(f'{URL}/messages',
                       data=data, headers=header)
-    print(r.json())
+    if r.status_code != 201:
+        raise HsmError(r.text)
     return r.json()
 
 

@@ -139,7 +139,7 @@ const Query: React.FC = () => {
     setMessage("");
     setRunning(true);
     setDisabled(true);
-    api.post("run", { query, database }).then((result) => {
+    api.post("/api/run", { query, database }).then((result) => {
       setRunning(false);
       if (result.data.status !== "Erro") {
         if (!result.data[0].hasOwnProperty("phone")) {
@@ -196,7 +196,7 @@ const Query: React.FC = () => {
   const selectHsm = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
     setDisabled(true);
-    api.get(`/templates/${company}/${value}`).then((response) => {
+    api.get(`/api/templates/${company}/${value}`).then((response) => {
       response.data.body.args ? setArgs(true) : setArgs(false);
       response.data.header?.format === "DOCUMENT"
         ? setTask(true)

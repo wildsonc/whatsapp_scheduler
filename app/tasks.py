@@ -35,4 +35,7 @@ def encrypt_pdf(path, password) -> str:
     resultPdf = open(newPath, 'wb')
     pdfWriter.write(resultPdf)
     resultPdf.close()
-    os.remove(f"{path}*")
+    try:
+        os.remove(f"{path}")
+    except:
+        pass
