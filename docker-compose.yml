@@ -61,7 +61,7 @@ services:
       - /volumes/whatsapp_scheduler:/code
   worker:
     image: wildsonc/wa_scheduler
-    command: celery -A core worker -l INFO
+    command: celery -A core worker -l INFO --autoscale 1,16 --concurrency 16
     environment:
       DB_HOST: postgres.explorernet.com.br
       DB_PORT: 5432

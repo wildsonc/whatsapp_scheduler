@@ -8,7 +8,7 @@ import wget
 import os
 
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 30})
 def mk_bill(args):
     file_name = f"{args[0]}.pdf"
     path = f"{settings.BASE_DIR}/download/{file_name}"

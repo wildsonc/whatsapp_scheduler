@@ -13,6 +13,8 @@ from psycopg2.extras import RealDictCursor
 from django.conf import settings
 
 from django_celery_beat.models import CrontabSchedule, PeriodicTask, PeriodicTasks
+from django_celery_results.models import TaskResult
+from datetime import date, timedelta
 from celery import current_app
 
 from .models import Database, Query, Contact, Dialog
@@ -268,7 +270,7 @@ def download(request, file):
 @api_view(['GET'])
 @csrf_exempt
 def trigger(request):
-    execute_query(request.query_params.get('id'))
+    execute_query.delay(request.query_params.get('id'))
     return HttpResponse()
 
 
@@ -382,3 +384,41 @@ def parser_template(template):
                 result['buttons']['data'] = buttons
                 result['buttons']['args'] = args
     return result
+
+
+@api_view(['GET'])
+@csrf_exempt
+def get_result(request):
+    filter = request.query_params.getlist('filter')
+    phone = request.query_params.get('phone')
+    dt = request.query_params.get('phone')
+    if not phone:
+        return JsonResponse({"status": "Error: Phone is required"}, status=400)
+    phone = phone[-8:]
+    result = TaskResult.objects.filter(task_args__icontains=phone).all()
+    if dt == 'today':
+        result = result.filter(date_done__date=date.today())
+    if filter:
+        for f in filter:
+            result = result.filter(task_args__icontains=f)
+    if not result:
+        return HttpResponse(status=404)
+    results = []
+    for r in result:
+        data = {}
+        task = eval(eval(r.task_args))
+        data['template'] = task[0]
+        _date = r.date_done - timedelta(hours=3)
+        data['formated_date'] = _date.strftime("%d/%m %H:%M")
+        data['date'] = r.date_done
+        args = task[1]['body_args']
+        data['body_args'] = args
+        i = 1
+        for arg in args:
+            data[f'arg{i}'] = arg
+            i += 1
+        data['result'] = json.loads(r.result)
+        results.append(data)
+    if len(results) == 1:
+        results = data
+    return JsonResponse(results, safe=False)

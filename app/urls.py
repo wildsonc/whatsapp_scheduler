@@ -23,5 +23,6 @@ urlpatterns = [
          views.get_template, name='get_template'),
     path('dialog', views.dialog, name='dialog'),
     path('dialog/<int:pk>', views.dialog_detail, name='dialog_detail'),
+    path('result', views.get_result, name='get_result'),
     path('download/<str:file>', views.download, name='download'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

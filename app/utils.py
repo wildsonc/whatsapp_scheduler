@@ -10,6 +10,7 @@ from .tasks import *
 
 import psycopg2
 import requests
+import time
 import json
 
 from io import StringIO
@@ -38,9 +39,23 @@ def execute_query(query):
             cursor.execute(q.sql)
             results = cursor.fetchall()
     if results:
+        i = 1
+        total = len(results)
+        wait = 30
+        # if total < 500:
+        #     wait = 180
+        # elif total < 3000:
+        #     wait = 120
+        # elif total > 10000:
+        #     wait = 30
         for result in results:
             _send_hsm.delay(q.hsm, result, q.task, q.once_time)
-        return {"results": len(results)}
+            if i == 50:
+                i = 0
+                print(f'Waiting {wait}s')
+                time.sleep(wait)
+            i += 1
+        return {"results": total}
     else:
         return {"results": 0}
 
@@ -90,7 +105,6 @@ def _send_hsm(hsm, query, task, once_time):
         buttons_args = query['buttons_args']
     data = get_context(contact.wa_id, template, company.namespace,
                        header_args, body_args, buttons_args)
-    print(data)
     header = {"D360-Api-Key": company.api_key,
               'Content-Type': "application/json"}
     r = requests.post(f'{URL}/messages',
@@ -239,7 +253,7 @@ def get_contact(phone, company):
         r = requests.post(f'{URL}/contacts',
                           data=data, headers=header)
         r = r.json()['contacts'][0]
-        contact = Contact.objects.get_or_create(
+        contact, created = Contact.objects.get_or_create(
             number=phone, status=r['status'], wa_id=r.get('wa_id'))
         if r['status'] == 'valid':
             return contact
