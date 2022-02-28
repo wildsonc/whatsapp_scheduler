@@ -422,3 +422,9 @@ def get_result(request):
     if len(results) == 1:
         results = data
     return JsonResponse(results, safe=False)
+
+
+@api_view(['GET'])
+@csrf_exempt
+def callback(request):
+    phone = request.query_params.get('phone')
